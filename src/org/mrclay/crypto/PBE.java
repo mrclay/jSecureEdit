@@ -13,6 +13,9 @@ import org.apache.commons.codec.binary.Base64;
  * Possibly weak password-based encryption (PKCS #5). To change the salt or number of
  * iterations, set the static properties before creating an instance.
  *
+ * @todo replace this with http://stackoverflow.com/questions/992019/java-256bit-aes-encryption/992413#992413
+ * @todo IV needs to be stored Base64-encoded next to the ciphertext
+ *
  * @see http://www.ietf.org/rfc/rfc2898.txt
  * @author Steve Clay http://www.mrclay.org/
  */
@@ -37,16 +40,14 @@ public class PBE {
 
         PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
 
-        //"PBEWithMD5AndDES";
-        
         SecretKeyFactory keyFac = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
 
         SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
         
         // Create ciphers
-        encryptCipher = Cipher.getInstance("AES");
+        encryptCipher = Cipher.getInstance("PBEWithMD5AndDES");
         encryptCipher.init(Cipher.ENCRYPT_MODE, pbeKey, pbeParamSpec);
-        decryptCipher = Cipher.getInstance("AES");
+        decryptCipher = Cipher.getInstance("PBEWithMD5AndDES");
         decryptCipher.init(Cipher.DECRYPT_MODE, pbeKey, pbeParamSpec);
     }
 

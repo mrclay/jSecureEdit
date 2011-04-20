@@ -460,7 +460,8 @@ public class EditorView extends FrameView {
                 }
             }
             App.getApplication().openedFile = selectedFile;
-            this.saveMenuItem.doClick();
+            saveMenuItem.setEnabled(true);
+            saveMenuItem.doClick();
         }
     }//GEN-LAST:event_saveAsMenuItemActionPerformed
 
