@@ -1,6 +1,5 @@
 package org.mrclay.crypto;
 
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -53,7 +52,6 @@ public class PBE {
      */
     public PBEStorage encrypt(byte[] cleartext) throws IllegalBlockSizeException,
                                                        BadPaddingException,
-                                                       UnsupportedEncodingException,
                                                        InvalidKeyException,
                                                        InvalidParameterSpecException
     {
