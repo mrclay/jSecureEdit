@@ -13,8 +13,9 @@ import javax.crypto.spec.*;
  * Password-based encryption (PKCS #5). To change the salt or number of
  * iterations, set the static properties before creating an instance.
  *
- * To avoid a runtime error, download "Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files 6"
- * and place the two java files in <JDK>/jre/lib/security (over top of the stock ones)
+ * To avoid a runtime error, the user must download "Cryptography Extension (JCE) Unlimited
+ * Strength Jurisdiction Policy Files 6" and place the two java files in <JRE>/lib/security
+ * (over top of the default ones). And similarly for debugging: <JDK>/jre/lib/security
  * @link http://www.oracle.com/technetwork/java/javase/downloads/index.html
  *
  * @see http://www.ietf.org/rfc/rfc2898.txt

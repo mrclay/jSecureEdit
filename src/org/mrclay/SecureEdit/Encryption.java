@@ -18,7 +18,7 @@ import org.mrclay.crypto.PBE;
 import org.mrclay.crypto.PBEStorage;
 
 public class Encryption {
-    public static final String ENCRYPTED_TOKEN = "SecureEdit :: http://www.mrclay.org/ :: ";
+    public static final String ENCRYPTED_TOKEN = "https://github.com/mrclay/jSecureEdit ||| ";
 
     private PBE pbe = null;
 

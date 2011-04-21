@@ -1,5 +1,0 @@
-Unicode Test File : "Iñtërnâtiônàlizætiøn"
-
-from: http://meta.wikimedia.org/wiki/List_of_Wikipedias
-
-Alemannisch (als) · Ænglisc (ang) · العربية (ar) · سنڌي (sd) · Azərbaycanca (az) · Български (bg) · Bahasa Banjar (bjn) · বাংলা (bn) · Català (ca) · Česky (cs) · Словѣ́ньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ (cu) · Deutsch (de) · Ελληνικά (el) · English (en) · Esperanto (eo) · Español (es) · فارسی (fa) · Suomi (fi) · Français (fr) · ગુજરાતી (gu) · עברית (he) · हिन्दी (hi) · Հայերեն (hy) · Bahasa Indonesia (id) · मराठी (mr) · Italiano (it) · 日本語 (ja) · Basa Jawa (jv) · ქართული (ka) · 한국어 (ko) · Latviešu (lv) · Lietuvių (lt) · Magyar (hu) · Bahasa Melayu (ms) · Македонски (mk) · مازِرونی (mzn) · नेपाल भाषा (new) · नेपाली (ne) · ਪੰਜਾਬੀ (pa) · Polski (pl) · پښتو (ps) · Português (pt) · Română (ro) · Русский (ru) · Svenska (sv) · தமிழ் (ta) · ไทย (th) · Türkçe (tr) · Українська (uk) · Tiếng Việt (vi) · Yorùbá (yo) · 中文 (zh)
