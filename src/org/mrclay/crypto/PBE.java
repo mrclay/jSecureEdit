@@ -5,18 +5,21 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
+import java.security.spec.KeySpec;
 import javax.crypto.*;
 import javax.crypto.spec.*;
-import org.apache.commons.codec.binary.Base64;
 
 /**
- * Possibly weak password-based encryption (PKCS #5). To change the salt or number of
+ * Password-based encryption (PKCS #5). To change the salt or number of
  * iterations, set the static properties before creating an instance.
  *
- * @todo replace this with http://stackoverflow.com/questions/992019/java-256bit-aes-encryption/992413#992413
- * @todo IV needs to be stored Base64-encoded next to the ciphertext
+ * To avoid a runtime error, download "Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files 6"
+ * and place the two java files in <JDK>/jre/lib/security (over top of the stock ones)
+ * @link http://www.oracle.com/technetwork/java/javase/downloads/index.html
  *
  * @see http://www.ietf.org/rfc/rfc2898.txt
+ * @see http://stackoverflow.com/questions/992019/java-256bit-aes-encryption/992413#992413
  * @author Steve Clay http://www.mrclay.org/
  */
 public class PBE {
@@ -29,77 +32,55 @@ public class PBE {
      * @throws NoSuchAlgorithmException
      * @throws NoSuchPaddingException
      */
-    public PBE(char[] password) throws InvalidAlgorithmParameterException,
-                                       InvalidKeyException,
-                                       InvalidKeySpecException,
+    public PBE(char[] password) throws InvalidKeySpecException,
                                        NoSuchAlgorithmException,
-                                       NoSuchPaddingException,
-                                       UnsupportedEncodingException
+                                       NoSuchPaddingException
     {
-        PBEParameterSpec pbeParamSpec = new PBEParameterSpec(salt, numIterations);
-
-        PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
-
-        SecretKeyFactory keyFac = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-
-        SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
-        
-        // Create ciphers
-        encryptCipher = Cipher.getInstance("PBEWithMD5AndDES");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, pbeKey, pbeParamSpec);
-        decryptCipher = Cipher.getInstance("PBEWithMD5AndDES");
-        decryptCipher.init(Cipher.DECRYPT_MODE, pbeKey, pbeParamSpec);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        KeySpec spec = new PBEKeySpec(password, salt, 1024, 256);
+        secretKey = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
+        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     }
 
     /**
-     * Encrypt a string
+     * encrypt a byte array
      * @param cleartext
      * @throws IllegalBlockSizeException
      * @throws BadPaddingException
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeyException
+     * @throws InvalidParameterSpecException
      */
-    public byte[] encrypt(String cleartext) throws IllegalBlockSizeException,
-                                                   BadPaddingException,
-                                                   UnsupportedEncodingException
+    public PBEStorage encrypt(byte[] cleartext) throws IllegalBlockSizeException,
+                                                       BadPaddingException,
+                                                       UnsupportedEncodingException,
+                                                       InvalidKeyException,
+                                                       InvalidParameterSpecException
     {
-        return encryptCipher.doFinal(cleartext.getBytes("UTF-8"));
-    }
-
-    public String encryptToBase64(String cleartext) throws BadPaddingException,
-                                                           IllegalBlockSizeException,
-                                                           UnsupportedEncodingException
-    {
-        return Base64.encodeBase64String(this.encrypt(cleartext));
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        return new PBEStorage(
+            cipher.getParameters().getParameterSpec(IvParameterSpec.class).getIV()
+            ,cipher.doFinal(cleartext)
+        );
     }
 
     /**
-     * Decrypt a byte array
-     * @param ciphertext
+     * decrypt a PBEStorage object (IV and ciphertext)
+     * @param storage
      * @throws BadPaddingException
      * @throws IllegalBlockSizeException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
      */
-    public String decrypt(byte[] ciphertext) throws BadPaddingException,
-                                                    IllegalBlockSizeException
+    public byte[] decrypt(PBEStorage storage) throws BadPaddingException,
+                                                     IllegalBlockSizeException,
+                                                     InvalidAlgorithmParameterException,
+                                                     InvalidKeyException
     {
-        return new String(decryptCipher.doFinal(ciphertext));
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(storage.getIv()));
+        return cipher.doFinal(storage.getCiphertext());
     }
     
-    public String decryptFromBase64(String base64ciphertext) throws BadPaddingException,
-                                                                    IllegalBlockSizeException
-    {
-        return this.decrypt(Base64.decodeBase64(base64ciphertext));    
-    }
-
-    private Cipher encryptCipher;
-    private Cipher decryptCipher;
-
-    public Cipher getDecryptCipher() {
-        return decryptCipher;
-    }
-
-    public Cipher getEncryptCipher() {
-        return encryptCipher;
-    }
-
     /**
      * bytes used to salt the key (set before making an instance)
      */
@@ -111,5 +92,8 @@ public class PBE {
     /**
      * number of times the password & salt are hashed during key creation (set before making an instance)
      */
-    public static int numIterations = 1000;
+    public static int numIterations = 1024;
+
+    private SecretKey secretKey = null;
+    private Cipher cipher = null;
 }

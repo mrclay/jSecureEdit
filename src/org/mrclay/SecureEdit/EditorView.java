@@ -289,14 +289,12 @@ public class EditorView extends FrameView {
     }// </editor-fold>//GEN-END:initComponents
 
     private void populateContent(String fromFile) {
-        App app = App.getApplication();
+        Encryption crypto = App.getApplication().getEncryption();
         contentArea.setEnabled(false);
-        if (fromFile.startsWith(App.ENCRYPTED_TOKEN)) {
-            String test = fromFile.substring(App.ENCRYPTED_TOKEN.length());
-            if (app.cipherIsReady()) {
-                // try with this cipher
+        if (crypto.looksDecryptable(fromFile)) {
+            if (crypto.isReady()) {
                 try {
-                    test = app.cipher.decryptFromBase64(test);
+                    String test = crypto.decrypt(fromFile);
                     fromFile = test;
                     contentArea.setEnabled(true);
                 }
@@ -315,7 +313,10 @@ public class EditorView extends FrameView {
         passwordField.setText("");
         passwordField.setEnabled(true);
         changePassButton.setEnabled(false);
-        App.getApplication().cipher = null;
+        try {
+            App.getApplication().getEncryption().setPassword("".toCharArray());
+        }
+        catch (Exception ignored) {}
     }
 
     private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
@@ -354,10 +355,10 @@ public class EditorView extends FrameView {
 
     private void saveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveMenuItemActionPerformed
         String text = contentArea.getText();
-        App app = App.getApplication();
-        if (app.cipherIsReady()) {
+        Encryption crypto = App.getApplication().getEncryption();
+        if (crypto.isReady()) {
             try {
-                text = App.ENCRYPTED_TOKEN + app.cipher.encryptToBase64(text);
+                text = crypto.encrypt(text);
             }
             catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "Your text could not be encrypted and "
@@ -368,7 +369,7 @@ public class EditorView extends FrameView {
 
         BufferedWriter writer;
         try {
-            writer = new BufferedWriter(new FileWriter(app.openedFile));
+            writer = new BufferedWriter(new FileWriter(App.getApplication().openedFile));
             writer.write(text);
             writer.close();
         }
@@ -385,8 +386,9 @@ public class EditorView extends FrameView {
                 passwordField.selectAll();
                 return;
             }
+            Encryption crypto = App.getApplication().getEncryption();
             try {
-                App.getApplication().updateCipher(passwordField.getPassword());
+                crypto.setPassword(passwordField.getPassword());
             }
             catch (Exception e) {
                 JOptionPane.showMessageDialog(null, e.getMessage());
@@ -394,13 +396,10 @@ public class EditorView extends FrameView {
 
             if (! contentArea.isEnabled()) {
                 // try decrypt
-                String test = contentArea.getText().substring(App.ENCRYPTED_TOKEN.length());
-                App app = App.getApplication();
-                if (app.cipherIsReady()) {
-                    // try with this cipher
+                if (crypto.isReady()) {
                     try {
-                        test = app.cipher.decryptFromBase64(test);
-                        contentArea.setText(test);
+                        String decrypted = crypto.decrypt(contentArea.getText());
+                        contentArea.setText(decrypted);
                         contentArea.setEnabled(true);
                     }
                     catch (Exception ignored) {
@@ -425,6 +424,10 @@ public class EditorView extends FrameView {
         if (changePass == JOptionPane.YES_OPTION) {
             changePassButton.setEnabled(false);
             passwordField.setText("");
+            try {
+                App.getApplication().getEncryption().setPassword("".toCharArray());
+            }
+            catch (Exception ignored) {}
             passwordField.setEnabled(true);
             passwordField.requestFocusInWindow();
         }

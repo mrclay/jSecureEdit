@@ -7,7 +7,6 @@ package org.mrclay.SecureEdit;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 import java.io.*;
-import org.mrclay.crypto.PBE;
 
 /**
  * The main class of the application.
@@ -44,21 +43,11 @@ public class App extends SingleFrameApplication {
         launch(App.class, args);
     }
 
-    public static final String ENCRYPTED_TOKEN = "SecureEdit :: http://www.mrclay.org/ :: ";
-
     public File openedFile = new File("");
 
-    public PBE cipher = null;
+    private Encryption encryption = new Encryption();
 
-    public boolean cipherIsReady() {
-        return (cipher != null);
-    }
-
-    public void updateCipher(char[] passphrase) throws Exception {
-        try {
-            cipher = new PBE(passphrase);
-        } catch (Exception e) {
-            throw new Exception("Failed to create cipher: " + e.getMessage());
-        }
+    public Encryption getEncryption() {
+        return encryption;
     }
 }
