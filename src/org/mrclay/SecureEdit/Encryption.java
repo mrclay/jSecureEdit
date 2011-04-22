@@ -5,6 +5,7 @@
 
 package org.mrclay.SecureEdit;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.InvalidAlgorithmParameterException;
@@ -14,11 +15,12 @@ import java.security.spec.InvalidParameterSpecException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import org.mrclay.compression.Deflate;
 import org.mrclay.crypto.PBE;
 import org.mrclay.crypto.PBEStorage;
 
 public class Encryption {
-    public static final String ENCRYPTED_TOKEN = "https://github.com/mrclay/jSecureEdit ||| ";
+    public static final String ENCRYPTED_TOKEN = "https://github.com/mrclay/jSecureEdit *** ";
 
     private PBE pbe = null;
 
@@ -46,9 +48,10 @@ public class Encryption {
                                                    IllegalBlockSizeException,
                                                    InvalidKeyException,
                                                    InvalidParameterSpecException,
-                                                   UnsupportedEncodingException
+                                                   UnsupportedEncodingException,
+                                                   IOException
     {
-        PBEStorage storage = pbe.encrypt(cleartext.getBytes("UTF-8"));
+        PBEStorage storage = pbe.encrypt(Deflate.deflate(cleartext.getBytes("UTF-8")));
         return ENCRYPTED_TOKEN + storage;
     }
 
@@ -59,6 +62,6 @@ public class Encryption {
                                                       UnsupportedEncodingException
     {
         PBEStorage storage = new PBEStorage(fileContent.substring(ENCRYPTED_TOKEN.length()));
-        return new String(pbe.decrypt(storage), "UTF-8");
+        return new String(Deflate.inflate(pbe.decrypt(storage)), "UTF-8");
     }
 }

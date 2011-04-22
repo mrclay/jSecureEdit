@@ -325,7 +325,7 @@ public class EditorView extends FrameView {
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             File selectedFile = chooser.getSelectedFile();
             if (! selectedFile.canRead()) {
-                JOptionPane.showMessageDialog(null, "The file could not be read.", "Open Failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "The file could not be opened.", "Open Failed", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
