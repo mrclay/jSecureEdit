@@ -10,7 +10,7 @@ import MiG.Base64;
 public class PBEStorage {
     private byte[] iv;
     private byte[] ciphertext;
-    public static String separator = "|";
+    public static String separator = " *** ";
 
     public PBEStorage(byte[] iv, byte[] ciphertext) {
         this.iv = iv;

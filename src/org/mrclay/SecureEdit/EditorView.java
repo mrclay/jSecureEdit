@@ -29,7 +29,7 @@ public class EditorView extends FrameView {
         super(app);
 
         initComponents();
-
+        
         // status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
         int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
@@ -53,7 +53,7 @@ public class EditorView extends FrameView {
         statusAnimationLabel.setIcon(idleIcon);
         progressBar.setVisible(false);
 
-        
+
 
         // connecting action tasks to status bar via TaskMonitor
         TaskMonitor taskMonitor = new TaskMonitor(getApplication().getContext());
@@ -86,8 +86,6 @@ public class EditorView extends FrameView {
             }
         });
     }
-
-
 
     @Action
     public void showAboutBox() {
@@ -328,28 +326,17 @@ public class EditorView extends FrameView {
                 JOptionPane.showMessageDialog(null, "The file could not be opened.", "Open Failed", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-            byte[] buffer = new byte[(int) selectedFile.length()];
-            BufferedInputStream stream = null;
+            String fileContent;
             try {
-                stream = new BufferedInputStream(new FileInputStream(selectedFile));
-                stream.read(buffer);
+                fileContent = FileIO.readFile(selectedFile);
             }
-            catch (IOException e) {
-                JOptionPane.showMessageDialog(null, "An error occurred while reading \""
-                    + selectedFile.getName() +  "\".", "Read Error", JOptionPane.ERROR_MESSAGE);
-            }
-            finally {
-                if (stream != null) {
-                    try {
-                        stream.close();
-                    }
-                    catch (IOException ignored) {}
-                }
+            catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "The file could not be read.", "Read Failed", JOptionPane.ERROR_MESSAGE);
+                return;
             }
             App.getApplication().openedFile = chooser.getSelectedFile();
             saveMenuItem.setEnabled(true);
-            populateContent(new String(buffer));
+            populateContent(fileContent);
         }
     }//GEN-LAST:event_openMenuItemActionPerformed
 
@@ -366,16 +353,11 @@ public class EditorView extends FrameView {
                      + "your text to a secure location.", "Encryption Failed", JOptionPane.ERROR_MESSAGE);
             }
         }
-
-        BufferedWriter writer;
         try {
-            writer = new BufferedWriter(new FileWriter(App.getApplication().openedFile));
-            writer.write(text);
-            writer.close();
+            FileIO.writeFile(App.getApplication().openedFile, text);
         }
         catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Your file could not be saved. Please try"
-                + " a different location.", "Save Failed", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "The file could not be saved.", "Save Failed", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_saveMenuItemActionPerformed
 

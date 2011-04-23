@@ -1,6 +1,3 @@
-/*
- * OnLockerAboutBox.java
- */
 
 package org.mrclay.SecureEdit;
 

@@ -1,6 +1,3 @@
-/*
- * App.java
- */
 
 package org.mrclay.SecureEdit;
 

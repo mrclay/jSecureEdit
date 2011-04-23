@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package org.mrclay.SecureEdit;
 
@@ -20,7 +16,8 @@ import org.mrclay.crypto.PBE;
 import org.mrclay.crypto.PBEStorage;
 
 public class Encryption {
-    public static final String ENCRYPTED_TOKEN = "https://github.com/mrclay/jSecureEdit *** ";
+    public static final String HEADER = "https://github.com/mrclay/jSecureEdit\r\n";
+    public static final String DELIMETER = "***meOj4Mh7FuvLZRnpGUVDGb0OisuadCUCFHhCtXAPy6b***";
 
     private PBE pbe = null;
 
@@ -41,7 +38,7 @@ public class Encryption {
     }
 
     public boolean looksDecryptable(String str) {
-        return str.startsWith(ENCRYPTED_TOKEN);
+        return str.contains(DELIMETER);
     }
 
     public String encrypt(String cleartext) throws BadPaddingException,
@@ -52,7 +49,7 @@ public class Encryption {
                                                    IOException
     {
         PBEStorage storage = pbe.encrypt(Deflate.deflate(cleartext.getBytes("UTF-8")));
-        return ENCRYPTED_TOKEN + storage;
+        return HEADER + DELIMETER + storage;
     }
 
     public String decrypt(String fileContent)  throws BadPaddingException,
@@ -61,7 +58,8 @@ public class Encryption {
                                                       InvalidKeyException,
                                                       UnsupportedEncodingException
     {
-        PBEStorage storage = new PBEStorage(fileContent.substring(ENCRYPTED_TOKEN.length()));
+        int idx = fileContent.indexOf(DELIMETER);
+        PBEStorage storage = new PBEStorage(fileContent.substring(idx + DELIMETER.length()));
         return new String(Deflate.inflate(pbe.decrypt(storage)), "UTF-8");
     }
 }
